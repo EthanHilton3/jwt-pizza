@@ -17,7 +17,7 @@ As part of `Deliverable ⓵ Development deployment: JWT Pizza`, start up the app
 | View About page                                     |    about.jsx       |  none             |   none       |
 | View History page                                   |     history.jsx    |   none            |   none       |
 | Login as franchisee<br/>(f@jwt.com, pw: franchisee) |     login.tsx      |   [PUT] /api/auth |  SELECT * FROM user WHERE email=? <br> SELECT * FROM userRole WHERE userId=?    |
-| View franchise<br/>(as franchisee)                  |                    |                   |              |
+| View franchise<br/>(as franchisee)                  |franchiseDashboard.jsx| [GET] /api/franchise/:userId|  SELECT objectId FROM userRole WHERE role='franchisee' AND userId=? |
 | Create a store                                      |                    |                   |              |
 | Close a store                                       |                    |                   |              |
 | Login as admin<br/>(a@jwt.com, pw: admin)           |                    |                   |              |
