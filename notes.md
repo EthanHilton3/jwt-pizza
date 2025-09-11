@@ -6,10 +6,10 @@ As part of `Deliverable ⓵ Development deployment: JWT Pizza`, start up the app
 
 | User activity                                       | Frontend component | Backend endpoints | Database SQL |
 | --------------------------------------------------- | ------------------ | ----------------- | ------------ |
-| View home page                                      |      home.js       |  none             |   none       |
-| Register new user<br/>(t@jwt.com, pw: test)         |      register.jsx  |  [POST] /api/auth | INSERT INTO user (name, email, password) VALUES (?, ?, ?) <br> INSERT INTO userRole (userId, role, objectId) VALUES (?, ?, ?)             |
-| Login new user<br/>(t@jwt.com, pw: test)            |     login.jsx      | [PUT] /api/auth   | SELECT * FROM user WHERE email=? <br> SELECT * FROM userRole WHERE userId=? |
-| Order pizza                                         |                    |                   |              |
+| View home page                                      |      home.tsx      |  none             |   none       |
+| Register new user<br/>(t@jwt.com, pw: test)         |      register.tsx  |  [POST] /api/auth | INSERT INTO user (name, email, password) VALUES (?, ?, ?) <br> INSERT INTO userRole (userId, role, objectId) VALUES (?, ?, ?)             |
+| Login new user<br/>(t@jwt.com, pw: test)            |     login.tsx      | [PUT] /api/auth   | SELECT * FROM user WHERE email=? <br> SELECT * FROM userRole WHERE userId=? |
+| Order pizza                                         |     payment.tsx    | [POST] /api/order | INSERT INTO dinerOrder (dinerId, franchiseId, storeId, date) VALUES (?, ?, ?, now()) <br> INSERT INTO orderItem (orderId, menuId, description, price) VALUES (?, ?, ?, ?)             |
 | Verify pizza                                        |                    |                   |              |
 | View profile page                                   |                    |                   |              |
 | View franchise<br/>(as diner)                       |                    |                   |              |
