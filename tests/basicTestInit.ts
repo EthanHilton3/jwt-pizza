@@ -8,16 +8,16 @@ export async function basicInit(page: Page) {
 	const validUsers: Record<string, User> =
 	{
 		'd@jwt.com': { id: '3', name: 'Kai Chen', email: 'd@jwt.com', password: 'a', roles: [{ role: Role.Diner }] },
-		'f@jwt.com': { id: '4', name: 'Kai Chen', email: 'f@jwt.com', password: 'a', roles: [{ role: Role.Franchisee }] },
+		/*'f@jwt.com': { id: '4', name: 'Kai Chen', email: 'f@jwt.com', password: 'a', roles: [{ role: Role.Franchisee }] },*/
 		'a@jwt.com': { id: '5', name: 'Kai Chen', email: 'a@jwt.com', password: 'a', roles: [{ role: Role.Admin }] },
 	};
 
-	// Log all API requests
-	page.on('request', req => {
-		if (req.url().includes('/api/')) {
-			console.log('📡 Request:', req.method(), req.url());
-		}
-	});
+	// // Log all API requests
+	// page.on('request', req => {
+	// 	if (req.url().includes('/api/')) {
+	// 		console.log('📡 Request:', req.method(), req.url());
+	// 	}
+	// });
 
 	// Login and logout handling
 	await page.route('*/**/api/auth', async (route) => {

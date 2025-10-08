@@ -15,6 +15,11 @@ async function loginAdmin(page: Page) {
 	await page.getByRole('button', { name: 'Login' }).click();
 }
 
+async function loginFranchise(page: Page) {
+	await page.getByRole('textbox', { name: 'Email address' }).fill('f@jwt.com');
+	await page.getByRole('textbox', { name: 'Password' }).fill('a');
+	await page.getByRole('button', { name: 'Login' }).click();
+}
 
 test('login', async ({ page }) => {
 	await basicInit(page);
@@ -133,5 +138,13 @@ test('filter franchises', async ({ page }) => {
 	await page.getByRole('textbox', { name: 'Filter franchises' }).click();
 	await page.getByRole('textbox', { name: 'Filter franchises' }).fill('LotaPizza');
 	await page.getByRole('button', { name: 'Submit' }).click();
+});
+
+test('view franchise dashboard', async ({ page }) => {
+	await basicInit(page);
+	await page.getByRole('link', { name: 'Login' }).click();
+	await loginDiner(page);
+	await page.getByRole('link', { name: 'Franchise', exact: true }).first().click();
+	await expect(page.getByText('So you want a piece of the pie?', { exact: true })).toBeVisible();
 });
 
