@@ -2,10 +2,15 @@ import { Page } from '@playwright/test';
 import { test, expect } from 'playwright-test-coverage';
 import { Role, User } from '../src/service/pizzaService';
 
-export async function basicInit(page: Page, paramValidUsers: Record<string, User>) {
+export async function basicInit(page: Page) {
 	let loggedInUser: User | undefined;
 	let loggedInToken: string | undefined;
-	const validUsers: Record<string, User> = paramValidUsers;
+	const validUsers: Record<string, User> =
+	{
+		'd@jwt.com': { id: '3', name: 'Kai Chen', email: 'd@jwt.com', password: 'a', roles: [{ role: Role.Diner }] },
+		'f@jwt.com': { id: '4', name: 'Kai Chen', email: 'f@jwt.com', password: 'a', roles: [{ role: Role.Franchisee }] },
+		'a@jwt.com': { id: '5', name: 'Kai Chen', email: 'a@jwt.com', password: 'a', roles: [{ role: Role.Admin }] },
+	};
 
 	// Log all API requests
 	page.on('request', req => {
@@ -161,5 +166,96 @@ export async function basicInit(page: Page, paramValidUsers: Record<string, User
 		await route.fulfill({ status: 200 });
 	});
 
-  	await page.goto('/');
+	// create franchisee user
+	await page.route('*/**/api/franchisee', async (route) => {
+		const req = route.request();
+		const method = req.method();
+
+		if (method === 'POST') {
+			const authHeader = req.headers()['authorization'];
+			expect(authHeader).toBe('Bearer ' + loggedInToken);
+
+			const newreq = req.postDataJSON()
+			const { name, email } = newreq;
+
+			const newFranchisee = {
+				name: name,
+				email: email
+			}
+
+			expect(method).toBe('POST');
+			await route.fulfill({
+				status: 200,
+				json: newFranchisee
+			});
+		}
+	});
+
+	// Franchise management (GET, DELETE)
+	await page.route(/\/api\/franchise(\/\d+)?$/, async (route) => {
+		const req = route.request();
+		const method = req.method();
+		const authHeader = req.headers()['authorization'];
+
+		// DELETE a franchise
+		if (method === 'DELETE') {
+			expect(authHeader).toBe('Bearer ' + loggedInToken);
+
+			const match = req.url().match(/\/api\/franchise\/(\d+)/);
+			const franchiseId = match ? match[1] : undefined;
+			expect(franchiseId).toBeDefined();
+
+			await route.fulfill({
+				status: 200,
+				json: { message: `franchise ${franchiseId} deleted` },
+			});
+			return;
+		}
+
+		await route.fulfill({ status: 405, json: { error: 'Method Not Allowed' } });
+	});
+
+	// Store management (POST create, DELETE delete)
+	await page.route(/\/api\/franchise\/(\d+)\/store(\/(\d+))?$/, async (route) => {
+		const req = route.request();
+		const method = req.method();
+		const authHeader = req.headers()['authorization'];
+		expect(authHeader).toBe('Bearer ' + loggedInToken);
+
+		const urlMatch = req.url().match(/\/api\/franchise\/(\d+)(?:\/store(?:\/(\d+))?)?/);
+		const franchiseId = urlMatch?.[1];
+		const storeId = urlMatch?.[2];
+
+		// POST → create new store
+		if (method === 'POST') {
+			const { name } = req.postDataJSON();
+			expect(name).toBeTruthy();
+
+			const newStore = {
+				id: Math.floor(Math.random() * 1000),
+				name,
+				totalRevenue: 0,
+			};
+
+			await route.fulfill({
+				status: 200,
+				json: newStore,
+			});
+			return;
+		}
+
+		// DELETE → delete a specific store
+		if (method === 'DELETE') {
+			expect(storeId).toBeDefined();
+			await route.fulfill({
+				status: 200,
+				json: { message: `store ${storeId} deleted from franchise ${franchiseId}` },
+			});
+			return;
+		}
+
+		await route.fulfill({ status: 405, json: { error: 'Method Not Allowed' } });
+	});
+
+	await page.goto('/');
 }
