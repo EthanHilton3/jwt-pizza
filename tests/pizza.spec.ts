@@ -148,3 +148,12 @@ test('view franchise dashboard', async ({ page }) => {
 	await expect(page.getByText('So you want a piece of the pie?', { exact: true })).toBeVisible();
 });
 
+test('view about and history pages', async ({ page }) => {
+	await basicInit(page);
+	await page.getByRole('link', { name: 'Login' }).click();
+	await loginDiner(page);
+	await page.getByRole('link', { name: 'About' }).click();
+	await expect(page.getByText('The secret sauce', { exact: true })).toBeVisible();
+	await page.getByRole('link', { name: 'History' }).click();
+	await expect(page.getByText('Mama Rucci, my my', { exact: true })).toBeVisible();
+});
