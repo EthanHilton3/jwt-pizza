@@ -140,12 +140,26 @@ test('filter franchises', async ({ page }) => {
 	await page.getByRole('button', { name: 'Submit' }).click();
 });
 
-test('view franchise dashboard', async ({ page }) => {
+test('view franchise dashboard (non-franchisee)', async ({ page }) => {
 	await basicInit(page);
 	await page.getByRole('link', { name: 'Login' }).click();
 	await loginDiner(page);
 	await page.getByRole('link', { name: 'Franchise', exact: true }).first().click();
 	await expect(page.getByText('So you want a piece of the pie?', { exact: true })).toBeVisible();
+});
+
+test('view franchise dashboard (franchisee)', async ({ page }) => {
+	await basicInit(page);
+	await page.getByRole('link', { name: 'Login' }).click();
+	await loginFranchise(page);
+	await page.getByRole('link', { name: 'Franchise', exact: true }).first().click();
+
+	await page.getByRole('button', { name: 'Create store' }).click();
+
+ 	await expect(page.getByText('Create store')).toBeVisible;
+	await page.getByRole('textbox', { name: 'store name' }).click();
+	await page.getByRole('textbox', { name: 'store name' }).fill('new store');
+	await page.getByRole('button', { name: 'Create' }).click();
 });
 
 test('view about and history pages', async ({ page }) => {

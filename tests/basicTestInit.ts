@@ -191,7 +191,7 @@ export async function basicInit(page: Page) {
 		}
 	});
 
-	// Franchise management (GET, DELETE)
+	// Franchise management (GET and DELETE)
 	await page.route(/\/api\/franchise(\/\d+)?$/, async (route) => {
 		const req = route.request();
 		const method = req.method();
@@ -210,6 +210,33 @@ export async function basicInit(page: Page) {
 				json: { message: `franchise ${franchiseId} deleted` },
 			});
 			return;
+		}
+
+		// GET a franchise by userid
+		else if (method === 'GET') {
+			const match = req.url().match(/\/api\/franchise\/(\d+)/);
+			const franchiseId = match ? match[1] : undefined;
+
+			// Only respond if /api/franchise/4
+			if (franchiseId === '4') {
+				const franchise = [{
+					id: 1,
+					name: 'LotaPizza',
+					admins: {
+						id: '4',
+						name: 'Kai Chen',
+						email: 'f@jwt.com'
+					},
+					stores: [
+						{ id: 4, name: 'Lehi', totalRevenue: 0 },
+						{ id: 5, name: 'Springville', totalRevenue: 0 },
+						{ id: 6, name: 'American Fork', totalRevenue: 0 },
+					],
+				}];
+				expect(route.request().method()).toBe('GET');
+				await route.fulfill({ status: 200, json: franchise });
+				return;
+			}
 		}
 
 		await route.fulfill({ status: 405, json: { error: 'Method Not Allowed' } });
