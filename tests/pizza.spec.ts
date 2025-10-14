@@ -64,7 +64,6 @@ test('register', async ({ page }) => {
 	await page.getByPlaceholder('Email address').fill('test@jwt.click');
 	await page.getByPlaceholder('Password').fill('mypassword');
 	await page.getByRole('button', { name: 'Register' }).click();
-	await page.goto('http://localhost:5173/');
 	await expect(page.getByRole('link', { name: 'home' })).toBeVisible();
 });
 

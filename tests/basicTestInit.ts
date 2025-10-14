@@ -1,5 +1,5 @@
 import { Page } from '@playwright/test';
-import { test, expect } from 'playwright-test-coverage';
+import { expect } from 'playwright-test-coverage';
 import { Role, User } from '../src/service/pizzaService';
 
 export async function basicInit(page: Page) {
@@ -33,6 +33,54 @@ export async function basicInit(page: Page) {
 
 			await route.fulfill({
 				status: 200
+			});
+			return;
+		}
+
+		// Handle POST requests for registration
+		if (req.method() === 'POST') {
+			const registerReq = req.postDataJSON();
+			const { name, email, password } = registerReq;
+
+			// Check if user already exists
+			if (validUsers[email]) {
+				await route.fulfill({
+					status: 409,
+					json: { error: 'User already exists' }
+				});
+				return;
+			}
+
+			// Create new user
+			const newUserId = String(Object.keys(validUsers).length + 6); // Start from 6 since existing users have ids 3,4,5
+			const newUser: User = {
+				id: newUserId,
+				name: name,
+				email: email,
+				password: password,
+				roles: [{ role: Role.Diner }]
+			};
+
+			// Add to valid users
+			validUsers[email] = newUser;
+
+			// Set as logged in user and generate token
+			loggedInUser = newUser;
+			loggedInToken = 'abcdef';
+
+			const registerRes = {
+				user: {
+					id: parseInt(newUserId),
+					name: newUser.name,
+					email: newUser.email,
+					roles: newUser.roles
+				},
+				token: loggedInToken,
+			};
+
+			await route.fulfill({
+				status: 200,
+				json: registerRes
 			});
 			return;
 		}
@@ -277,6 +325,45 @@ export async function basicInit(page: Page) {
 			await route.fulfill({
 				status: 200,
 				json: { message: `store ${storeId} deleted from franchise ${franchiseId}` },
+			});
+			return;
+		}
+
+		await route.fulfill({ status: 405, json: { error: 'Method Not Allowed' } });
+	});
+
+	// Update user information
+	await page.route(/\/api\/user\/\d+$/, async (route) => {
+		const req = route.request();
+
+		if (req.method() === 'PUT') {
+			const authHeader = req.headers()['authorization'];
+			expect(authHeader).toBe('Bearer ' + loggedInToken);
+
+			const updateReq = req.postDataJSON();
+			const { name, email, password } = updateReq;
+
+			// Update the logged in user
+			if (loggedInUser) {
+				loggedInUser.name = name || loggedInUser.name;
+				loggedInUser.email = email || loggedInUser.email;
+				if (password) {
+					loggedInUser.password = password;
+				}
+
+				// Update in validUsers as well
+				// if (validUsers[loggedInUser.email]) {
+				// 	validUsers[loggedInUser.email] = loggedInUser;
+				// }
+			}
+
+			// Return the response format that matches the actual API
+			await route.fulfill({
+				status: 200,
+				json: {
+					user: loggedInUser,
+					token: loggedInToken
+				}
 			});
 			return;
 		}
