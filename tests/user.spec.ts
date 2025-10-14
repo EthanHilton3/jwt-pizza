@@ -1,6 +1,12 @@
 import { test } from 'playwright-test-coverage';
-import { expect, request } from "@playwright/test";
+import { expect, Page, request } from "@playwright/test";
 import { basicInit } from "./basicTestInit";
+
+async function loginAdmin(page: Page) {
+	await page.getByRole('textbox', { name: 'Email address' }).fill('a@jwt.com');
+	await page.getByRole('textbox', { name: 'Password' }).fill('a');
+	await page.getByRole('button', { name: 'Login' }).click();
+}
 
 test('updateUser', async ({ page }) => {
 	await basicInit(page);
@@ -35,4 +41,17 @@ test('updateUser', async ({ page }) => {
 	await page.getByRole('button', { name: 'Login' }).click();
 	await page.getByRole('link', { name: 'pd' }).click();
 	await expect(page.getByRole('main')).toContainText('pizza dinerx');
+});
+
+test('getUsers test', async ({ page }) => {
+	await basicInit(page);
+	await page.getByRole('link', { name: 'Login' }).click();
+	await loginAdmin(page);
+	await page.getByRole('link', { name: 'Admin' }).click();
+	
+	await expect(page.getByRole('heading', { name: 'Users' })).toBeVisible();
+	await expect(page.locator('table tbody tr')).toHaveCount(10);
+ 	await page.getByRole('textbox', { name: 'Filter users' }).fill('a');
+  	await page.getByRole('cell', { name: 'a Submit' }).getByRole('button').click();
+	await expect(page.locator('table tbody tr')).toHaveCount(10);
 });
