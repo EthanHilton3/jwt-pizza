@@ -136,7 +136,7 @@ test('filter franchises', async ({ page }) => {
 
 	await page.getByRole('textbox', { name: 'Filter franchises' }).click();
 	await page.getByRole('textbox', { name: 'Filter franchises' }).fill('LotaPizza');
-	await page.getByRole('button', { name: 'Submit' }).click();
+	await page.getByRole('button', { name: 'Submit' }).nth(1).click();
 });
 
 test('view franchise dashboard (non-franchisee)', async ({ page }) => {
