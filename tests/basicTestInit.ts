@@ -371,5 +371,34 @@ export async function basicInit(page: Page) {
 		await route.fulfill({ status: 405, json: { error: 'Method Not Allowed' } });
 	});
 
+	// Add this route handler in your basicInit function
+	// await page.route(/\/api\/user(\?.*)?$/, async (route) => {
+	// 	const req = route.request();
+		
+	// 	if (req.method() === 'GET') {
+	// 		const authHeader = req.headers()['authorization'];
+	// 		expect(authHeader).toBe('Bearer ' + loggedInToken);
+			
+	// 		// Mock users list response
+	// 		const mockUsers = Object.values(validUsers).map(user => ({
+	// 			id: parseInt(user.id),
+	// 			name: user.name,
+	// 			email: user.email,
+	// 			roles: user.roles
+	// 		}));
+			
+	// 		await route.fulfill({
+	// 			status: 200,
+	// 			json: {
+	// 				users: mockUsers,
+	// 				more: false
+	// 			}
+	// 		});
+	// 		return;
+	// 	}
+		
+	// 	await route.fulfill({ status: 405, json: { error: 'Method Not Allowed' } });
+	// });
+
 	await page.goto('/');
 }
