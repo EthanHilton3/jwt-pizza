@@ -400,5 +400,54 @@ export async function basicInit(page: Page) {
 	// 	await route.fulfill({ status: 405, json: { error: 'Method Not Allowed' } });
 	// });
 
+	// Update your existing /api/user route handler to include DELETE
+	// await page.route(/\/api\/user(\/\d+)?(\?.*)?$/, async (route) => {
+	// 	const req = route.request();
+		
+	// 	if (req.method() === 'GET' && !req.url().includes('/user/')) {
+	// 		// Handle GET /api/user (list users) - existing code
+	// 		const authHeader = req.headers()['authorization'];
+	// 		expect(authHeader).toBe('Bearer ' + loggedInToken);
+			
+	// 		const mockUsers = Object.values(validUsers).map(user => ({
+	// 			id: parseInt(user.id),
+	// 			name: user.name,
+	// 			email: user.email,
+	// 			roles: user.roles
+	// 		}));
+			
+	// 		await route.fulfill({
+	// 			status: 200,
+	// 			json: {
+	// 				users: mockUsers,
+	// 				more: false
+	// 			}
+	// 		});
+	// 		return;
+	// 	}
+		
+	// 	if (req.method() === 'DELETE') {
+	// 		// Handle DELETE /api/user/:id
+	// 		const authHeader = req.headers()['authorization'];
+	// 		expect(authHeader).toBe('Bearer ' + loggedInToken);
+			
+	// 		const userId = req.url().split('/').pop();
+			
+	// 		// Find and remove user from validUsers
+	// 		const userToDelete = Object.values(validUsers).find(user => user.id === userId);
+	// 		if (userToDelete) {
+	// 			delete validUsers[userToDelete.email];
+	// 		}
+			
+	// 		await route.fulfill({
+	// 			status: 200,
+	// 			json: { message: 'User deleted successfully' }
+	// 		});
+	// 		return;
+	// 	}
+		
+	// 	await route.fulfill({ status: 405, json: { error: 'Method Not Allowed' } });
+	// });
+
 	await page.goto('/');
 }

@@ -56,6 +56,19 @@ export default function AdminDashboard(props: Props) {
     setUsersList(await pizzaService.getUsers(usersPage, 10, `*${filterUsersRef.current?.value}*`));
   }
 
+  async function deleteUser(userId: number) {
+    if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+      try {
+        await pizzaService.deleteUser(userId);
+        // Refresh the users list
+        setUsersList(await pizzaService.getUsers(usersPage, 10, '*'));
+      } catch (error) {
+        console.error('Failed to delete user:', error);
+        alert('Failed to delete user. Please try again.');
+      }
+    }
+  }
+
   let response = <NotFound />;
   if (Role.isRole(props.user, Role.Admin)) {
     response = (
@@ -88,7 +101,11 @@ export default function AdminDashboard(props: Props) {
                               {user.roles?.map(role => role.role).join(', ')}
                             </td>
                             <td className="px-6 py-1 whitespace-nowrap text-end text-sm font-medium">
-                              <button type="button" className="px-2 py-1 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-1 border-orange-400 text-orange-400 hover:border-orange-800 hover:text-orange-800">
+                              <button 
+                                type="button" 
+                                className="px-2 py-1 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-1 border-orange-400 text-orange-400 hover:border-orange-800 hover:text-orange-800"
+                                onClick={() => user.id !== undefined && deleteUser(Number(user.id))}
+                              >
                                 <TrashIcon />
                                 Delete
                               </button>
