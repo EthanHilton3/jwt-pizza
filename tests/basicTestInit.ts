@@ -108,13 +108,6 @@ export async function basicInit(page: Page) {
 		await route.fulfill({ status: 405, json: { error: 'Method Not Allowed' } });
 	});
 
-
-	// Return the currently logged in user
-	await page.route('*/**/api/user/me', async (route) => {
-		expect(route.request().method()).toBe('GET');
-		await route.fulfill({ json: loggedInUser });
-	});
-
 	// A standard menu
 	await page.route('*/**/api/order/menu', async (route) => {
 		const menuRes = [
@@ -331,40 +324,6 @@ export async function basicInit(page: Page) {
 
 		await route.fulfill({ status: 405, json: { error: 'Method Not Allowed' } });
 	});
-
-	// // Update user information
-	// await page.route(/\/api\/user\/\d+$/, async (route) => {
-	// 	const req = route.request();
-
-	// 	if (req.method() === 'PUT') {
-	// 		const authHeader = req.headers()['authorization'];
-	// 		expect(authHeader).toBe('Bearer ' + loggedInToken);
-
-	// 		const updateReq = req.postDataJSON();
-	// 		const { name, email, password } = updateReq;
-
-	// 		// Update the logged in user
-	// 		if (loggedInUser) {
-	// 			loggedInUser.name = name || loggedInUser.name;
-	// 			loggedInUser.email = email || loggedInUser.email;
-	// 			if (password) {
-	// 				loggedInUser.password = password;
-	// 			}
-	// 		}
-
-	// 		// Return the response format that matches the actual API
-	// 		await route.fulfill({
-	// 			status: 200,
-	// 			json: {
-	// 				user: loggedInUser,
-	// 				token: loggedInToken
-	// 			}
-	// 		});
-	// 		return;
-	// 	}
-
-	// 	await route.fulfill({ status: 405, json: { error: 'Method Not Allowed' } });
-	// });
 
 	// Single /api/user route handler
 	await page.route(/\/api\/user(\/\d+)?(\?.*)?$/, async (route) => {
