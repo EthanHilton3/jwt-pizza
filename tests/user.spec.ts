@@ -55,3 +55,26 @@ test('getUsers test', async ({ page }) => {
   	await page.getByRole('cell', { name: 'a Submit' }).getByRole('button').click();
 	await expect(page.locator('table tbody tr')).toHaveCount(10);
 });
+
+test('deleteUser', async ({ page }) => {
+    await basicInit(page);
+    await page.getByRole('link', { name: 'Login' }).click();
+    await loginAdmin(page);
+    await page.getByRole('link', { name: 'Admin' }).click();
+    await expect(page.getByRole('heading', { name: 'Users' })).toBeVisible();
+    
+    // Get initial user count
+    const initialCount = await page.getByRole('cell', { name: 'Delete' }).count();
+	console.log(`Initial user count: ${initialCount}`);
+    
+    // Listen for the dialog and accept it
+    page.on('dialog', dialog => dialog.accept());
+    
+    // Click the delete button
+    await page.getByRole('button', { name: 'Delete' }).nth(0).click();
+    
+    // Verify the user was deleted (count should decrease)
+	let userCountAfterDeletion = await page.getByRole('cell', { name: 'Delete' }).count();
+	console.log(`User count after deletion attempt: ${userCountAfterDeletion}`);
+    await expect(page.getByRole('cell', { name: 'Delete' })).toHaveCount(initialCount - 1);
+});

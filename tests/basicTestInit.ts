@@ -332,54 +332,61 @@ export async function basicInit(page: Page) {
 		await route.fulfill({ status: 405, json: { error: 'Method Not Allowed' } });
 	});
 
-	// Update user information
-	await page.route(/\/api\/user\/\d+$/, async (route) => {
+	// // Update user information
+	// await page.route(/\/api\/user\/\d+$/, async (route) => {
+	// 	const req = route.request();
+
+	// 	if (req.method() === 'PUT') {
+	// 		const authHeader = req.headers()['authorization'];
+	// 		expect(authHeader).toBe('Bearer ' + loggedInToken);
+
+	// 		const updateReq = req.postDataJSON();
+	// 		const { name, email, password } = updateReq;
+
+	// 		// Update the logged in user
+	// 		if (loggedInUser) {
+	// 			loggedInUser.name = name || loggedInUser.name;
+	// 			loggedInUser.email = email || loggedInUser.email;
+	// 			if (password) {
+	// 				loggedInUser.password = password;
+	// 			}
+	// 		}
+
+	// 		// Return the response format that matches the actual API
+	// 		await route.fulfill({
+	// 			status: 200,
+	// 			json: {
+	// 				user: loggedInUser,
+	// 				token: loggedInToken
+	// 			}
+	// 		});
+	// 		return;
+	// 	}
+
+	// 	await route.fulfill({ status: 405, json: { error: 'Method Not Allowed' } });
+	// });
+
+	// Single /api/user route handler
+	await page.route(/\/api\/user(\/\d+)?(\?.*)?$/, async (route) => {
 		const req = route.request();
-
-		if (req.method() === 'PUT') {
-			const authHeader = req.headers()['authorization'];
-			expect(authHeader).toBe('Bearer ' + loggedInToken);
-
-			const updateReq = req.postDataJSON();
-			const { name, email, password } = updateReq;
-
-			// Update the logged in user
-			if (loggedInUser) {
-				loggedInUser.name = name || loggedInUser.name;
-				loggedInUser.email = email || loggedInUser.email;
-				if (password) {
-					loggedInUser.password = password;
-				}
-
-				// Update in validUsers as well
-				// if (validUsers[loggedInUser.email]) {
-				// 	validUsers[loggedInUser.email] = loggedInUser;
-				// }
-			}
-
-			// Return the response format that matches the actual API
-			await route.fulfill({
-				status: 200,
-				json: {
-					user: loggedInUser,
-					token: loggedInToken
-				}
-			});
+		const url = req.url();
+		const method = req.method();
+		
+		// Check if this is a specific user endpoint (/api/user/:id)
+		const userIdMatch = url.match(/\/api\/user\/(\d+)$/);
+		const userId = userIdMatch ? userIdMatch[1] : null;
+		
+		// Handle /api/user/me (get current user)
+		if (method === 'GET' && url.endsWith('/api/user/me')) {
+			await route.fulfill({ json: loggedInUser });
 			return;
 		}
-
-		await route.fulfill({ status: 405, json: { error: 'Method Not Allowed' } });
-	});
-
-	// Get users list - only for admin
-	await page.route(/\/api\/user(\?.*)?$/, async (route) => {
-		const req = route.request();
 		
-		if (req.method() === 'GET') {
+		// Handle GET /api/user (list users)
+		if (method === 'GET' && !userId && !url.endsWith('/me')) {
 			const authHeader = req.headers()['authorization'];
 			expect(authHeader).toBe('Bearer ' + loggedInToken);
 			
-			// Mock users list response
 			const mockUsers = Object.values(validUsers).map(user => ({
 				id: parseInt(user.id ?? '0'),
 				name: user.name,
@@ -397,57 +404,54 @@ export async function basicInit(page: Page) {
 			return;
 		}
 		
+		// Handle PUT /api/user/:id (update user)
+		if (method === 'PUT' && userId) {
+			const authHeader = req.headers()['authorization'];
+			expect(authHeader).toBe('Bearer ' + loggedInToken);
+
+			const updateReq = req.postDataJSON();
+			const { name, email, password } = updateReq;
+
+			// Update the logged in user
+			if (loggedInUser) {
+				loggedInUser.name = name || loggedInUser.name;
+				loggedInUser.email = email || loggedInUser.email;
+				if (password) {
+					loggedInUser.password = password;
+				}
+			}
+
+			await route.fulfill({
+				status: 200,
+				json: {
+					user: loggedInUser,
+					token: loggedInToken
+				}
+			});
+			return;
+		}
+		
+		// Handle DELETE /api/user/:id (delete user)
+		if (method === 'DELETE' && userId) {
+			const authHeader = req.headers()['authorization'];
+			expect(authHeader).toBe('Bearer ' + loggedInToken);
+			
+			// Find and remove user from validUsers
+			const userToDelete = Object.values(validUsers).find(user => user.id === userId);
+			if (userToDelete && userToDelete.email) {
+				delete validUsers[userToDelete.email];
+			}
+			
+			await route.fulfill({
+				status: 200,
+				json: { message: 'User deleted successfully' }
+			});
+			return;
+		}
+		
+		// Default fallback
 		await route.fulfill({ status: 405, json: { error: 'Method Not Allowed' } });
 	});
-
-	// Update your existing /api/user route handler to include DELETE
-	// await page.route(/\/api\/user(\/\d+)?(\?.*)?$/, async (route) => {
-	// 	const req = route.request();
-		
-	// 	if (req.method() === 'GET' && !req.url().includes('/user/')) {
-	// 		// Handle GET /api/user (list users) - existing code
-	// 		const authHeader = req.headers()['authorization'];
-	// 		expect(authHeader).toBe('Bearer ' + loggedInToken);
-			
-	// 		const mockUsers = Object.values(validUsers).map(user => ({
-	// 			id: parseInt(user.id),
-	// 			name: user.name,
-	// 			email: user.email,
-	// 			roles: user.roles
-	// 		}));
-			
-	// 		await route.fulfill({
-	// 			status: 200,
-	// 			json: {
-	// 				users: mockUsers,
-	// 				more: false
-	// 			}
-	// 		});
-	// 		return;
-	// 	}
-		
-	// 	if (req.method() === 'DELETE') {
-	// 		// Handle DELETE /api/user/:id
-	// 		const authHeader = req.headers()['authorization'];
-	// 		expect(authHeader).toBe('Bearer ' + loggedInToken);
-			
-	// 		const userId = req.url().split('/').pop();
-			
-	// 		// Find and remove user from validUsers
-	// 		const userToDelete = Object.values(validUsers).find(user => user.id === userId);
-	// 		if (userToDelete) {
-	// 			delete validUsers[userToDelete.email];
-	// 		}
-			
-	// 		await route.fulfill({
-	// 			status: 200,
-	// 			json: { message: 'User deleted successfully' }
-	// 		});
-	// 		return;
-	// 	}
-		
-	// 	await route.fulfill({ status: 405, json: { error: 'Method Not Allowed' } });
-	// });
 
 	await page.goto('/');
 }
