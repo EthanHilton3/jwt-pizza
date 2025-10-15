@@ -108,6 +108,12 @@ export async function basicInit(page: Page) {
 		await route.fulfill({ status: 405, json: { error: 'Method Not Allowed' } });
 	});
 
+	// Return the currently logged in user
+	await page.route('*/**/api/user/me', async (route) => {
+		expect(route.request().method()).toBe('GET');
+		await route.fulfill({ json: loggedInUser });
+	});
+
 	// A standard menu
 	await page.route('*/**/api/order/menu', async (route) => {
 		const menuRes = [
@@ -334,12 +340,6 @@ export async function basicInit(page: Page) {
 		// Check if this is a specific user endpoint (/api/user/:id)
 		const userIdMatch = url.match(/\/api\/user\/(\d+)$/);
 		const userId = userIdMatch ? userIdMatch[1] : null;
-		
-		// Handle /api/user/me (get current user)
-		if (method === 'GET' && url.endsWith('/api/user/me')) {
-			await route.fulfill({ json: loggedInUser });
-			return;
-		}
 		
 		// Handle GET /api/user (list users)
 		if (method === 'GET' && !userId && !url.endsWith('/me')) {
