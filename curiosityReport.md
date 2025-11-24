@@ -223,7 +223,7 @@ score = model.predict(new_data)  # Returns: -1 (Anomaly)
 Alert fatigue is one of the most significant challenges in modern operations:
 
 - **Volume**: Large organizations can receive thousands of alerts daily
-- **False Positives**: Up to 99% of alerts may be non-actionable (Splunk, 2022)
+- **False Positives**: In poorly configured or legacy monitoring systems, false positive rates can be extremely high—some organizations report 90-99% non-actionable alerts in complex environments (Splunk, 2022). Well-configured systems typically see 30-50% false positives, which is still significant.
 - **Consequences**: Critical alerts get ignored, leading to extended outages
 
 ```
@@ -779,26 +779,30 @@ Value│             ╱──────╱  ╲
 
 #### Benefits and ROI
 
-| Benefit | Impact | Estimated Value |
-|---------|--------|-----------------|
-| **Reduced MTTR** | 40-60% faster resolution | $500K-2M/year* |
-| **Fewer False Positives** | 80-90% reduction | $200K-500K/year** |
-| **Prevented Outages** | 30-50% fewer incidents | $1M-5M/year*** |
-| **Engineering Efficiency** | 20-30% less toil | $300K-1M/year |
+*Note: The following estimates are highly variable based on organization size, industry, and existing maturity. Values shown are illustrative ranges for mid-to-large enterprises.*
 
-*Based on average downtime cost of $5,600/minute (Gartner)
-**Based on engineer time spent investigating false alerts
-***Based on prevented revenue loss and reputation damage
+| Benefit | Impact | Estimated Value Range |
+|---------|--------|----------------------|
+| **Reduced MTTR** | 40-60% faster resolution | $100K-2M/year* |
+| **Fewer False Positives** | 50-90% reduction | $50K-500K/year** |
+| **Prevented Outages** | 20-50% fewer incidents | $200K-5M/year*** |
+| **Engineering Efficiency** | 15-30% less toil | $100K-1M/year |
+
+*Varies significantly by downtime cost, which ranges from $1K to $9K+ per minute depending on industry (Gartner)
+**Based on engineer time spent investigating false alerts; assumes $75-150/hr fully loaded engineer cost
+***Highly dependent on revenue model and customer sensitivity to outages
 
 #### ROI Calculation Example
 
+*The following is an optimistic scenario for a high-revenue e-commerce company. Actual results vary significantly based on starting maturity, implementation quality, and organizational factors. Many organizations see more modest improvements of 20-30% in key metrics.*
+
 ```
-Scenario: E-commerce company with $100M annual revenue
+Scenario: E-commerce company with $100M annual revenue (Optimistic Case)
 
 Current State:
 - Average 5 significant incidents/month
 - MTTR: 45 minutes
-- Downtime cost: $5,000/minute
+- Downtime cost: $5,000/minute (high for e-commerce)
 - Monthly incident cost: 5 × 45 × $5,000 = $1,125,000
 
 With AI Observability:
@@ -809,6 +813,12 @@ With AI Observability:
 Annual Savings: ($1,125,000 - $337,500) × 12 = $9,450,000
 AI Platform Cost: ~$200,000/year
 ROI: 4,625%
+
+Conservative Scenario (More typical):
+- 20% incident reduction, 25% MTTR reduction
+- $2,000/minute downtime cost
+- Annual Savings: ~$500,000-800,000
+- ROI: 150-300%
 ```
 
 ### 4.4 Implementation Roadmap
